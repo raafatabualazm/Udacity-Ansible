@@ -20,6 +20,9 @@
     name: npm
     update_cache: yes
 
+- name: "Create directory"
+  shell: mkdir ~/web
+
 - name: "Copy Index"
   copy: 
     src: index.js
