@@ -8,26 +8,16 @@
   apt:
     upgrade: yes
 
-- name: "Install PM2"
+- name: "Install node"
+  apt:
+    name: node
+    update_cache: yes
+
+- name: "Install npm"
   become: yes
   apt:
     name: npm
     update_cache: yes
-
-- name: "Download NodeJS"
-  become: yes
-  get_url:
-    url: https://nodejs.org/dist/latest-v19.x/node-v19.0.1-linux-x64.tar.gz
-    dest: /opt/node
-    mode: 0755
-    checksum: sha256:https://nodejs.org/dist/latest-v19.x/SHASUMS256.txt
-
-- name: "Install node"
-  shell: |
-    tar -xzf /opt/node/node-v19.0.1-linux-x64.tar.gz
-    cd /opt/node/node-v19.0.1-linux-x64
-    ./configure
-    sudo make install
 
 - name: "Copy Index"
   copy: 
@@ -35,7 +25,9 @@
     dest: ~/web/index.js
 
 - name: "Install pm2"
-  shell: npm install pm2
+  apt:
+    name: pm2
+    update_cache: yes
 
 - name: "Run Server"
   shell: pm2 start ~/web/index.js -f
