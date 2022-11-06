@@ -30,6 +30,5 @@
   shell: npm install pm2 -g
 
 - name: "Run Server"
-  become: yes
   shell: pm2 start ~/web/index.js -f
 
