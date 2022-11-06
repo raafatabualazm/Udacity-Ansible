@@ -1,0 +1,5 @@
+- name: "Deploy NodeJS WebApp"
+  hosts: all
+
+  roles:
+    - Setup
