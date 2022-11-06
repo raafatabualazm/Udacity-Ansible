@@ -12,7 +12,6 @@
   become: yes
   apt:
     name: npm
-    present: yes
     update_cache: yes
 
 - name: "Download NodeJS"
