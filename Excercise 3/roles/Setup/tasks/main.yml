@@ -11,7 +11,7 @@
 - name: "Install nodejs"
   become: yes
   apt:
-    name: node
+    name: nodejs
     update_cache: yes
 
 - name: "Install npm"
