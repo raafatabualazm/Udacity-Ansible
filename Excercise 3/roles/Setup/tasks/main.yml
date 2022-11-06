@@ -20,9 +20,6 @@
     name: npm
     update_cache: yes
 
-- name: "Create directory"
-  shell: mkdir ~/web
-
 - name: "Copy Index"
   copy: 
     src: index.js
@@ -35,5 +32,6 @@
     update_cache: yes
 
 - name: "Run Server"
+  become: yes
   shell: pm2 start ~/web/index.js -f
 
