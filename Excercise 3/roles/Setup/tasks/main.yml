@@ -9,6 +9,7 @@
     upgrade: yes
 
 - name: "Install node"
+  become: yes
   apt:
     name: node
     update_cache: yes
