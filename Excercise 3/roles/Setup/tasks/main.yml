@@ -29,6 +29,7 @@
     dest: ~/web/index.js
 
 - name: "Install pm2"
+  become: yes
   apt:
     name: pm2
     update_cache: yes
