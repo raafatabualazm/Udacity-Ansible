@@ -27,9 +27,7 @@
 
 - name: "Install pm2"
   become: yes
-  apt:
-    name: pm2
-    update_cache: yes
+  shell: npm install pm2 -g
 
 - name: "Run Server"
   become: yes
