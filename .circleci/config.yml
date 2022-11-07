@@ -25,7 +25,7 @@ jobs:
 
   config-infra:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: circleci/python
     steps:
       - checkout
       - add_ssh_keys:
@@ -33,7 +33,7 @@ jobs:
             - "64:40:a5:48:d0:c1:5f:94:f0:b8:2a:6c:bc:b4:f5:22"
       - run:
           name: "Install Ansible"
-          command: apk add --update ansible
+          command: apt install ansible
       # - run:
       #     name: "create Ansible cfg"
       #     command: echo [defaults] > ansible.cfg
