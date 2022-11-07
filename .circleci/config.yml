@@ -34,8 +34,11 @@ jobs:
           name: "Install Ansible"
           command: apk add --update ansible
       - run:
-          name: "Print Ansible cfg"
-          command: ~/.ansible.cfg 
+          name: "create Ansible cfg"
+          command: echo [defaults] > ansible.cfg
+      - run:
+          name: "Disable SSH Key check"
+          command: echo HOST_KEY_CHECKING=false >> ansible.cfg
       - run:
           name: "Run Playbook"
           command: ansible-playbook -i 'Excercise 5'/inventory 'Excercise 5'/main.yml
