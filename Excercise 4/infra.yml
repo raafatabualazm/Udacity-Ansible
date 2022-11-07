@@ -17,4 +17,4 @@ Resources:
       SecurityGroups: !Ref InstanceSecGroup
       KeyName: Udacity
       ImageId: 'ami-08c40ec9ead489470'
-      InstanceTpe: t2.micro
+      InstanceType: t2.micro
