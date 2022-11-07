@@ -35,7 +35,7 @@ jobs:
           command: apk add --update ansible
       - run:
           name: "Print Ansible cfg"
-          command: cat /etc/ansible/ansible.cfg 
+          command: ~/.ansible.cfg 
       - run:
           name: "Run Playbook"
           command: ansible-playbook -i 'Excercise 5'/inventory 'Excercise 5'/main.yml
