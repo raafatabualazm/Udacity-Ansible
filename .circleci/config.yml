@@ -10,18 +10,32 @@ orbs:
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  build-infra:
+  # build-infra:
+  #   docker:
+  #     - image: amazon/aws-cli
+  #   steps:
+  #     - checkout
+  #     - run: 
+  #         name: "Build Infra using CF"
+  #         command: |
+  #           aws cloudformation deploy \
+  #               --template-file 'Excercise 4/infra.yml' \
+  #               --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
+  #               --region us-east-1
+
+  config-infra:
     docker:
-      - image: amazon/aws-cli
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
-      - run: 
-          name: "Build Infra using CF"
-          command: |
-            aws cloudformation deploy \
-                --template-file 'Excercise 4/infra.yml' \
-                --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
-                --region us-east-1
+      - add_ssh_keys:
+                fingerprints: ["64:40:a5:48:d0:c1:5f:94:f0:b8:2a:6c:bc:b4:f5:22"]
+      - run:
+          name: "Install Ansible"
+          command: apk add --update ansible
+      - run:
+          name: "Run Playbook"
+          command: ansible-playbook -i 'Excercise 5/inventory' 'Excercise 5/main.yml'
 
   
 
@@ -30,4 +44,5 @@ jobs:
 workflows:
   say-hello-workflow:
     jobs:
-      - build-infra
+      # - build-infra
+      - config-infra
