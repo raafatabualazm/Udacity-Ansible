@@ -39,7 +39,7 @@ jobs:
           command: echo [defaults] > ansible.cfg
       - run:
           name: "Disable SSH Key check"
-          command: echo HOST_KEY_CHECKING=false >> ansible.cfg
+          command: echo HOST_KEY_CHECKING=False >> ansible.cfg
       - run:
           name: "Run Playbook"
           command: ansible-playbook -i 'Excercise 5'/inventory 'Excercise 5'/main.yml
