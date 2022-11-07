@@ -34,8 +34,11 @@ jobs:
           name: "Install Ansible"
           command: apk add --update ansible
       - run:
+          name: "Change Directory"
+          command: cd 'Excercise 5'
+      - run:
           name: "Run Playbook"
-          command: ansible-playbook -i 'Excercise 5/inventory' 'Excercise 5/main.yml'
+          command: ansible-playbook -i inventory main.yml
 
   
 
