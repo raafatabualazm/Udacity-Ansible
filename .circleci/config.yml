@@ -23,26 +23,42 @@ jobs:
   #               --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
   #               --region us-east-1
 
-  config-infra:
-    docker:
-      - image: circleci/python
-    steps:
-      - checkout
-      - add_ssh_keys:
-          fingerprints: 
-            - "64:40:a5:48:d0:c1:5f:94:f0:b8:2a:6c:bc:b4:f5:22"
+  # config-infra:
+  #   docker:
+  #     - image: circleci/python
+  #   steps:
+  #     - checkout
+  #     - add_ssh_keys:
+  #         fingerprints: 
+  #           - "64:40:a5:48:d0:c1:5f:94:f0:b8:2a:6c:bc:b4:f5:22"
       
-      - run:
-          name: "Update"
-          command: sudo apt update
+  #     - run:
+  #         name: "Update"
+  #         command: sudo apt update
 
-      - run:
-          name: "Install Ansible"
-          command: sudo apt install ansible --fix-missing
-      - run:
-          name: "Run Playbook"
-          command: ansible-playbook -i 'Excercise 5'/inventory 'Excercise 5'/main.yml
+  #     - run:
+  #         name: "Install Ansible"
+  #         command: sudo apt install ansible --fix-missing
+  #     - run:
+  #         name: "Run Playbook"
+  #         command: ansible-playbook -i 'Excercise 5'/inventory 'Excercise 5'/main.yml
 
+  smoke_test:
+    docker:
+      - image: alpine:latest
+    steps:
+      - run: apk add --update curl
+      - run:
+          name: smoke test
+          command: |
+            URL="https://blog.udacity.com/"
+            # Test if website exists
+            if curl -s --head ${URL} 
+            then
+              return 0
+            else
+              return 1
+            fi
   
 
 # Invoke jobs via workflows
@@ -51,4 +67,5 @@ workflows:
   say-hello-workflow:
     jobs:
       # - build-infra
-      - config-infra
+      # - config-infra
+      - smoke_test
