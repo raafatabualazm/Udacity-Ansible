@@ -26,7 +26,7 @@ jobs:
           name: "Build Infra using CF"
           command: |
             aws cloudformation deploy \
-                --template-file 'Excercise 4/infra.yml' \
+                --template-file 'Excercise 7/infra.yml' \
                 --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
                 --region us-east-1
 
