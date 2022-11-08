@@ -2,6 +2,13 @@
 # See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
+commands:
+  delete-infra:
+    steps:
+      - run:
+        name: Destro stack
+        when: onfail
+        command: aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5}
 
 
 orbs:
@@ -10,18 +17,18 @@ orbs:
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  # build-infra:
-  #   docker:
-  #     - image: amazon/aws-cli
-  #   steps:
-  #     - checkout
-  #     - run: 
-  #         name: "Build Infra using CF"
-  #         command: |
-  #           aws cloudformation deploy \
-  #               --template-file 'Excercise 4/infra.yml' \
-  #               --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
-  #               --region us-east-1
+  build-infra:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run: 
+          name: "Build Infra using CF"
+          command: |
+            aws cloudformation deploy \
+                --template-file 'Excercise 4/infra.yml' \
+                --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
+                --region us-east-1
 
   # config-infra:
   #   docker:
@@ -47,18 +54,11 @@ jobs:
     docker:
       - image: alpine:latest
     steps:
-      - run: apk add --update curl
       - run:
-          name: smoke test
+          name: simulate error
           command: |
-            URL="https://blog.udacity.vom/"
-            # Test if website exists
-            if curl -s --head ${URL} 
-            then
-              return 0
-            else
-              return 1
-            fi
+            return 1
+      - delete-infra
   
 
 # Invoke jobs via workflows
@@ -66,6 +66,6 @@ jobs:
 workflows:
   say-hello-workflow:
     jobs:
-      # - build-infra
+      - build-infra
       # - config-infra
       - smoke_test
