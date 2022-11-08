@@ -52,7 +52,7 @@ jobs:
 
   smoke_test:
     docker:
-      - image: alpine:latest
+      - image: amazon/aws-cli
     steps:
       - run:
           name: simulate error
@@ -68,4 +68,6 @@ workflows:
     jobs:
       - build-infra
       # - config-infra
-      - smoke_test
+      - smoke_test:
+          requires:
+            - build-infra 
