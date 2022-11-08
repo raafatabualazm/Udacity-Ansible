@@ -6,9 +6,9 @@ commands:
   delete-infra:
     steps:
       - run:
-        name: Destro stack
-        when: onfail
-        command: aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5}
+          name: Destroy stack
+          when: onfail
+          command: aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5}
 
 
 orbs:
