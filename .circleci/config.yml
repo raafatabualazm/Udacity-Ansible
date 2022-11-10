@@ -68,7 +68,7 @@ jobs:
           name: Create new bucket
           command: |
             aws cloudformation deploy \
-            --template-file 'Excercise 8'/bucket.yml \
+            --template-file 'Excercise 8/bucket.yml' \
             --stack-name stack-create-bucket-${CIRCLE_WORKFLOW_ID:0:7} \
             --parameter-overrides MyBucketName="mybucket-${CIRCLE_WORKFLOW_ID:0:7}"
   
