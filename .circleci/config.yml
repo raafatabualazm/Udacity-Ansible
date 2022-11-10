@@ -2,13 +2,13 @@
 # See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
-commands:
-  delete-infra:
-    steps:
-      - run:
-          name: Destroy stack
-          when: on_fail
-          command: aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5}
+# commands:
+#   delete-infra:
+#     steps:
+#       - run:
+#           name: Destroy stack
+#           when: on_fail
+#           command: aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5}
 
 
 orbs:
@@ -17,18 +17,18 @@ orbs:
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  build-infra:
-    docker:
-      - image: amazon/aws-cli
-    steps:
-      - checkout
-      - run: 
-          name: "Build Infra using CF"
-          command: |
-            aws cloudformation deploy \
-                --template-file 'Excercise 7/infra.yml' \
-                --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
-                --region us-east-1
+  # build-infra:
+  #   docker:
+  #     - image: amazon/aws-cli
+  #   steps:
+  #     - checkout
+  #     - run: 
+  #         name: "Build Infra using CF"
+  #         command: |
+  #           aws cloudformation deploy \
+  #               --template-file 'Excercise 7/infra.yml' \
+  #               --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
+  #               --region us-east-1
 
   # config-infra:
   #   docker:
@@ -50,24 +50,91 @@ jobs:
   #         name: "Run Playbook"
   #         command: ansible-playbook -i 'Excercise 5'/inventory 'Excercise 5'/main.yml
 
-  smoke_test:
+  # smoke_test:
+  #   docker:
+  #     - image: amazon/aws-cli
+  #   steps:
+  #     - run:
+  #         name: simulate error
+  #         command: |
+  #           return 1
+  #     - delete-infra
+  
+  create_and_deploy_front_end:
     docker:
       - image: amazon/aws-cli
     steps:
       - run:
-          name: simulate error
+          name: Create new bucket
           command: |
-            return 1
-      - delete-infra
+            aws cloudformation deploy \
+            --template-file 'Excercise 8'/bucket.yml \
+            --stack-name stack-create-bucket-${CIRCLE_WORKFLOW_ID:0:7} \
+            --parameter-overrides MyBucketName="mybucket-${CIRCLE_WORKFLOW_ID:0:7}"
   
+  get_last_deployment_id:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run: yum install -y tar gzip
+      - run:
+          name: Fetch and save the old pipeline ID (bucket name) responsible for the last release.
+          command: |
+            aws cloudformation \
+            list-exports --query "Exports[?Name==\`PipelineID\`].Value" \
+            --no-paginate --output text > ~/textfile.txt
+      - persist_to_workspace:
+          root: ~/
+          paths: 
+            - textfile.txt 
+
+  promote_to_production:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Execute cloudfront.yml
+          command: |
+            aws cloudformation deploy \
+            --template-file 'Excercise 8'/Distribution.yml \
+            --stack-name production-distro \
+            --parameter-overrides PipelineID="mybucket-${CIRCLE_WORKFLOW_ID:0:7}"
+      - run: aws s3 sync . s3://mybucket-${CIRCLE_WORKFLOW_ID:0:7} --delete
+  
+  clean_up_old_front_end:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run: yum install -y tar gzip
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Destroy the previous S3 bucket and CloudFormation stack. 
+          # Use $OldBucketID environment variable or mybucket644752792305 below.
+          # Similarly, you can create and use $OldStackID environment variable in place of production-distro 
+          command: |
+            export OldBucketID=$(cat ~/textfile.txt)
+            aws s3 rm "s3://${OldBucketID}" --recursive
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
   say-hello-workflow:
     jobs:
-      - build-infra
+      # - build-infra
       # - config-infra
-      - smoke_test:
+      # - smoke_test:
+          # requires:
+            # - build-infra 
+      - create_and_deploy_front_end
+      - promote_to_production:
+          requires: 
+            - create_and_deploy_front_end
+      - get_last_deployment_id
+      - clean_up_old_front_end:
           requires:
-            - build-infra 
+            - get_last_deployment_id
+            - promote_to_production
